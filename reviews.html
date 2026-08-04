@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Reviews — MJ Dollado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F2036; --navy-deep:#081321; --paper:#F6F4EE; --paper-line:#DCD6C6;
+    --brass:#B08D57; --brass-light:#D9BD8A; --slate:#5C6773; --green:#31502F;
+    --white:#FFFFFF; --ink:#151B24; --font:"Inter",-apple-system,sans-serif; --max:820px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:var(--font); background:var(--paper); color:var(--ink); line-height:1.65; font-size:17px;}
+  .wrap{max-width:var(--max); margin:0 auto; padding:0 24px;}
+  a{color:inherit; text-decoration:none;}
+  header{background:linear-gradient(180deg,var(--navy-deep) 0%,var(--navy) 100%); color:var(--paper); padding:48px 24px 40px;}
+  header .back{font-size:13.5px; color:var(--brass-light); font-weight:700; display:inline-block; margin-bottom:18px;}
+  header h1{font-size:clamp(24px,4vw,32px); font-weight:800; margin-bottom:8px;}
+  header p{color:#D8DEE6; font-size:15.5px;}
+  main{padding:44px 0 80px;}
+  .review-card{background:var(--white); border:1px solid var(--paper-line); border-radius:8px; padding:26px 24px; margin-bottom:18px;}
+  .stars{color:var(--brass); font-size:16px; margin-bottom:10px; letter-spacing:2px;}
+  .review-text{font-size:15.5px; color:#2C333C; margin-bottom:14px; line-height:1.6;}
+  .review-who{font-weight:700; color:var(--navy); font-size:14.5px;}
+  .review-role{font-size:13px; color:var(--slate);}
+  .empty{text-align:center; padding:60px 20px; color:var(--slate); font-size:15.5px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="back" href="index.html">← Back to portfolio</a>
+    <h1>What Clients Say</h1>
+    <p>Every review here has been approved by Jessa after direct client submission.</p>
+  </div>
+</header>
+
+<main class="wrap" id="reviewsList"></main>
+
+<script src="reviews-data.js"></script>
+<script>
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  const list = document.getElementById('reviewsList');
+  if(!window.allReviews || allReviews.length === 0){
+    list.innerHTML = '<div class="empty">No reviews yet — check back soon.</div>';
+  } else {
+    allReviews.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'review-card';
+      card.innerHTML = `
+        <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+        <div class="review-text">"${escapeHtml(r.text)}"</div>
+        <div><div class="review-who">${escapeHtml(r.name)}</div><div class="review-role">${escapeHtml(r.role)}</div></div>
+      `;
+      list.appendChild(card);
+    });
+  }
+</script>
+
+</body>
+</html>
