@@ -23,15 +23,13 @@
 //   Just delete its {...} entry below.
 // =========================================================================
 
+
 const allReviews = [
-  // Empty on purpose — this is intentional. No sample/placeholder reviews.
-  // Example of what a real, approved entry looks like once you add one:
-  //
-  // {
-  //   name: "J. Ramirez",
-  //   role: "Project Manager, Residential Builder",
-  //   rating: 5,
-  //   text: "MJ consistently delivers high-quality work with excellent attention to detail.",
-  //   featured: true
-  // },
+  {
+    name: "Armando Duaman",
+    role: "CEO, JK Company — Construction Estimating",
+    rating: 5,
+    text: "Nice",
+    featured: true
+  },
 ];
