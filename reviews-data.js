@@ -23,7 +23,6 @@
 //   Just delete its {...} entry below.
 // =========================================================================
 
-
 const allReviews = [
   {
     name: "Armando Duaman",

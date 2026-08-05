@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%230F2036'/%3E%3Ctext x='50' y='68' font-family='Arial,sans-serif' font-size='54' font-weight='800' fill='%23D9BD8A' text-anchor='middle'%3EMJ%3C/text%3E%3C/svg%3E">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Client Intake, Scope Confirmation & Service Agreement — MJ Dollado</title>
@@ -77,6 +78,15 @@
 
   .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--navy); color:var(--paper); padding:14px 22px; border-radius:6px; font-size:14px; font-weight:600; opacity:0; pointer-events:none; transition:all .3s; border:1px solid var(--brass); z-index:200; max-width:90vw; text-align:center;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .error-banner{display:none; background:#5A1F1F; color:#F6E6E6; border:1px solid #8A3A3A; border-radius:6px; padding:16px 18px; margin-bottom:18px; font-size:14.5px;}
+  .error-banner.show{display:block;}
+  .error-banner strong{display:block; margin-bottom:8px;}
+  .error-banner ul{margin:0 0 0 18px;}
+  .error-banner a{color:#FFD9D9; text-decoration:underline;}
+
+  .answer-box{display:none; background:var(--white); border:1px solid var(--paper-line); border-radius:8px; padding:20px; margin-top:14px; font-size:13.5px; white-space:pre-wrap; color:#2C333C; max-height:280px; overflow-y:auto;}
+  .answer-box.show{display:block;}
 
   .req::after{content:" *"; color:var(--brass);}
 </style>
@@ -443,10 +453,13 @@
     </div>
   </div>
 
+  <div class="error-banner" id="errorBanner"></div>
+
   <div class="submit-row">
     <button type="submit" class="btn btn-primary" id="submitBtn">Submit Agreement →</button>
-    <a href="#" class="btn btn-copy" id="copyBtn">📧 Email myself a copy of my answers</a>
-    <div class="form-note">This sends your responses straight to Jessa's email. Click the button above afterward to also send a copy to yourself.</div>
+    <a href="#" class="btn btn-copy" id="copyBtn">📋 Copy my answers to clipboard</a>
+    <div class="form-note">This sends your responses straight to Jessa's email. Click the button above afterward to also copy your answers so you can paste them into your own email or notes.</div>
+    <div class="answer-box" id="answerBox"></div>
   </div>
 
   </form>
@@ -504,16 +517,50 @@
   const form = document.getElementById('agreementForm');
   const submitBtn = document.getElementById('submitBtn');
   const copyBtn = document.getElementById('copyBtn');
+  const errorBanner = document.getElementById('errorBanner');
+  const answerBox = document.getElementById('answerBox');
   let lastSummary = '';
   let lastEmail = '';
   let lastCompany = '';
 
+  function fieldLabel(el){
+    // Try to find the closest preceding label text for this input
+    const field = el.closest('.field');
+    if(field){
+      const lbl = field.querySelector('label');
+      if(lbl) return lbl.textContent.replace('*','').trim();
+    }
+    const finalCheck = el.closest('.final-check label');
+    if(finalCheck) return finalCheck.textContent.trim();
+    return el.id || 'A required field';
+  }
+
+  function showMissingFields(){
+    const invalids = Array.from(form.querySelectorAll(':invalid'));
+    if(invalids.length === 0){
+      errorBanner.classList.remove('show');
+      return;
+    }
+    const items = invalids.map(el => {
+      const card = el.closest('.card');
+      const label = fieldLabel(el);
+      if(card){
+        return '<li><a href="#' + card.id + '">' + label + '</a></li>';
+      }
+      return '<li>' + label + '</li>';
+    }).join('');
+    errorBanner.innerHTML = '<strong>Please complete these before submitting:</strong><ul>' + items + '</ul>';
+    errorBanner.classList.add('show');
+    invalids[0].closest('.card')?.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if(!form.checkValidity()){
-      form.reportValidity();
+      showMissingFields();
       return;
     }
+    errorBanner.classList.remove('show');
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending…';
 
@@ -539,7 +586,7 @@
         submitBtn.textContent = 'Submitted ✓';
         copyBtn.classList.add('show');
       } else {
-        showToast('Could not send — please try again or email me directly.');
+        showToast('Could not send (' + (data.message || 'unknown error') + '). Please try again or email me directly.');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Agreement →';
       }
@@ -550,11 +597,18 @@
     }
   });
 
-  copyBtn.addEventListener('click', (e) => {
+  copyBtn.addEventListener('click', async (e) => {
     e.preventDefault();
-    const subject = encodeURIComponent('Your copy — Service Agreement with Ma. Jessa Dollado');
-    const body = encodeURIComponent('Here is a copy of what you submitted:\n\n' + lastSummary);
-    window.location.href = 'mailto:' + (lastEmail || '') + '?subject=' + subject + '&body=' + body;
+    const fullText = 'Here is a copy of what you submitted:\n\n' + lastSummary;
+    answerBox.textContent = fullText;
+    answerBox.classList.add('show');
+    try{
+      await navigator.clipboard.writeText(fullText);
+      showToast('Copied to clipboard! You can paste this into an email or notes app.');
+    }catch(err){
+      showToast('Your answers are shown below — select and copy manually.');
+    }
+    answerBox.scrollIntoView({behavior:'smooth', block:'center'});
   });
 </script>
 
