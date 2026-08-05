@@ -29,11 +29,4 @@
 // =========================================================================
 
 window.allReviews = [
-  {
-    name: "Armando Duaman",
-    role: "CEO, JK Company — Construction Estimating",
-    rating: 5,
-    text: "Nice",
-    featured: true
-  },
 ];
