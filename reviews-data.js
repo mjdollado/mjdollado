@@ -21,9 +21,14 @@
 //
 // REMOVING A REVIEW (duplicate, test, or a client asks you to take it down):
 //   Just delete its {...} entry below.
+//
+// NOTE: this is intentionally `window.allReviews = [...]` (not `const`).
+// A top-level `const`/`let` in a plain script does NOT attach to `window`,
+// so checks like `if (!window.allReviews)` on other pages would always
+// see it as missing even when this array is full. Keep it as `window.allReviews`.
 // =========================================================================
 
-const allReviews = [
+window.allReviews = [
   {
     name: "Armando Duaman",
     role: "CEO, JK Company — Construction Estimating",
